@@ -1,15 +1,22 @@
-import { ethers } from 'hardhat';
-
+/* eslint-disable no-undef */
 async function main() {
+	// eslint-disable-next-line no-undef
 	const [deployer] = await ethers.getSigners();
 
 	console.log('Deploying contracts with the account:', deployer.address);
 	console.log('Account balance:', (await deployer.getBalance()).toString());
 
 	// deploy contracts here:
+	const NFT = await ethers.getContractFactory('NFT');
+	const nft = await NFT.deploy();
+	const Marketplace = await ethers.getContractFactory('Marketplace');
+	const marketplace = await Marketplace.deploy(1);
+
+	console.log(`marketplace address: ${marketplace.address}`);
+	console.log(`NFT CONTRACT address: ${nft.address}`);
 
 	// For each contract, pass the deployed contract and name to this function to save a copy of the contract ABI and address to the front end.
-	saveFrontendFiles();
+	saveFrontendFiles(nft, 'NFT');
 }
 
 function saveFrontendFiles(contract, name) {
