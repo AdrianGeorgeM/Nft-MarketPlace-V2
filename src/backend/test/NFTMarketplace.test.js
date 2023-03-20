@@ -50,4 +50,7 @@ describe('NFTMarketplace', async function () {
 			expect(await nft.tokenURI(2)).equal(URI);
 		});
 	});
+
+	// eslint-disable-next-line jest/valid-describe-callback
+	describe('Making marketplace items', async function () {});
 });
