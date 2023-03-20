@@ -1,4 +1,6 @@
+/* eslint-disable no-undef */
 async function main() {
+	// eslint-disable-next-line no-undef
 	const [deployer] = await ethers.getSigners();
 
 	console.log('Deploying contracts with the account:', deployer.address);
