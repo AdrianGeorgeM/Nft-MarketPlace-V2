@@ -59,5 +59,11 @@ describe('NFTMarketplace', async function () {
 			// Approve marketplace to spend NFT
 			await nft.connect(addr1).approve(marketplace.address, true);
 		});
+
+		it('Should track each marketplace item, transfer NFT from seller to marketplace and emit Offered event', async function () {
+			await expect(marketplace.connect(addr1).createMarketItem(nft.address, 1, toWei(1)))
+				.emit(marketplace, 'Offered')
+				.withArgs(nft.address, 1, addr1.address, toWei(1));
+		});
 	});
 });
