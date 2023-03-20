@@ -9,22 +9,49 @@ contract Marketplace is ReentrancyGuard {
     uint public immutable feePercent; // the fee percentage
     uint public itemCounter; // the number of items in the marketplace
 
-    // what is Struct ?
-
-    // Struct is a user defined data type which is used to combine data items of different kinds.
-
     struct MarketItem {
+        // the struct that represents an item in the marketplace (NFT)
         uint itemId;
         IERC721 nft;
         uint tokenId;
         address payable seller;
-        address payable owner;
         uint price;
         bool isSold;
     }
 
+    event Offered(
+        uint itemId,
+        address indexed nft,
+        uint indexed tokenId,
+        address indexed seller,
+        uint price
+    );
+
+    // itemId => MarketItem mapping
+    mapping(uint => MarketItem) public marketItems;
+
     constructor(uint _feePercent) {
         feeAccount = payable(msg.sender);
         feePercent = _feePercent;
+    }
+
+    // createMarketItem() function to create a new item in the marketplace
+    function createMarketItem(
+        IERC721 _nft,
+        uint _tokenId,
+        uint _price
+    ) external nonReentrant {
+        require(_price > 0, "Price must be greater than 0");
+        _nft.transferFrom(msg.sender, address(this), _tokenId);
+        itemCounter++;
+
+        marketItems[itemCounter] = MarketItem(
+            itemCounter,
+            _nft,
+            _tokenId,
+            payable(msg.sender),
+            _price,
+            false
+        );
     }
 }
