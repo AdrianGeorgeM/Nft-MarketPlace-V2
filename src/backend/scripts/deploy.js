@@ -1,5 +1,3 @@
-import { ethers } from 'hardhat';
-
 async function main() {
 	const [deployer] = await ethers.getSigners();
 
@@ -11,7 +9,7 @@ async function main() {
 	const nft = await NFT.deploy();
 
 	// For each contract, pass the deployed contract and name to this function to save a copy of the contract ABI and address to the front end.
-	saveFrontendFiles();
+	saveFrontendFiles(nft, 'NFT');
 }
 
 function saveFrontendFiles(contract, name) {
