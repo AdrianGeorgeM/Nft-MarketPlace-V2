@@ -3,6 +3,7 @@ const { expect } = require('chai');
 // eslint-disable-next-line jest/valid-describe-callback
 describe('NFTMarketplace', async function () {
 	let deployer, addr1, addr2, nft, marketplace;
+	const feePercent = 10;
 
 	beforeEach(async function () {
 		// create a fresh contract instance before each test
@@ -14,5 +15,13 @@ describe('NFTMarketplace', async function () {
 		// DEPLOY CONTRACTS
 		nft = await NFT.deploy();
 		marketplace = await Marketplace.deploy(feePercent);
+	});
+
+	// eslint-disable-next-line jest/valid-describe-callback
+	describe('Deployment', async function () {
+		it('Should track name and symbol of the nft collection', async function () {
+			expect(await nft.name()).to.equal('NFT');
+			expect(await nft.symbol()).to.equal('ANFT');
+		});
 	});
 });
