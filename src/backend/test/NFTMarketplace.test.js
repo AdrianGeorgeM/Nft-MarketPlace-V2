@@ -1,5 +1,9 @@
 /* eslint-disable no-undef */
 const { expect } = require('chai');
+const { ethers } = require('hardhat');
+
+const toWei = (num) => ethers.utils.parseEther(num.toString()); // 1 ether = 10 ** 18 wei
+const fromWei = (num) => ethers.utils.formatEther(num);
 
 // eslint-disable-next-line jest/valid-describe-callback
 describe('NFTMarketplace', async function () {
@@ -64,6 +68,9 @@ describe('NFTMarketplace', async function () {
 			await expect(marketplace.connect(addr1).createMarketItem(nft.address, 1, toWei(1)))
 				.emit(marketplace, 'Offered')
 				.withArgs(nft.address, 1, addr1.address, toWei(1));
+
+			// expect(await nft.ownerOf(1)).equal(marketplace.address);
+			// expect(await marketplace.items(1)).equal(nft.address);
 		});
 	});
 });
