@@ -52,5 +52,12 @@ describe('NFTMarketplace', async function () {
 	});
 
 	// eslint-disable-next-line jest/valid-describe-callback
-	describe('Making marketplace items', async function () {});
+	describe('Making marketplace items', async function () {
+		beforeEach(async function () {
+			// Mint NFT
+			await nft.connect(addr1).mint(URI);
+			// Approve marketplace to spend NFT
+			await nft.connect(addr1).approve(marketplace.address, true);
+		});
+	});
 });
