@@ -9,6 +9,20 @@ contract Marketplace is ReentrancyGuard {
     uint public immutable feePercent; // the fee percentage
     uint public itemCounter; // the number of items in the marketplace
 
+    // what is Struct ?
+
+    // Struct is a user defined data type which is used to combine data items of different kinds.
+
+    struct MarketItem {
+        uint itemId;
+        IERC721 nft;
+        uint tokenId;
+        address payable seller;
+        address payable owner;
+        uint price;
+        bool isSold;
+    }
+
     constructor(uint _feePercent) {
         feeAccount = payable(msg.sender);
         feePercent = _feePercent;
