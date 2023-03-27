@@ -57,20 +57,35 @@ describe('NFTMarketplace', async function () {
 
 	// eslint-disable-next-line jest/valid-describe-callback
 	describe('Making marketplace items', async function () {
+		let price = 1;
 		beforeEach(async function () {
 			// Mint NFT
 			await nft.connect(addr1).mint(URI);
 			// Approve marketplace to spend NFT
-			await nft.connect(addr1).approve(marketplace.address, true);
+			await nft.connect(addr1).setApprovalForAll(marketplace.address, true);
 		});
 
 		it('Should track each marketplace item, transfer NFT from seller to marketplace and emit Offered event', async function () {
-			await expect(marketplace.connect(addr1).createMarketItem(nft.address, 1, toWei(1)))
-				.emit(marketplace, 'Offered')
-				.withArgs(nft.address, 1, addr1.address, toWei(1));
+			// Convert price to wei
+			// const weiPrice = ethers.utils.parseEther(price.toString());
+			// console.log('weiPrice', weiPrice);
+			// console.log('price', toWei(price));
 
-			// expect(await nft.ownerOf(1)).equal(marketplace.address);
-			// expect(await marketplace.items(1)).equal(nft.address);
+			await expect(
+				marketplace.connect(addr1).createMarketItem(nft.address, 1, toWei(price))
+			)
+				.emit(marketplace, 'Offered')
+				.withArgs(1, nft.address, 1, addr1.address, toWei(price));
+
+			expect(await nft.ownerOf(1)).equal(marketplace.address);
+			expect(await marketplace.itemCounter()).equal(1);
+
+			const item = await marketplace.marketItems(1);
+			expect(item.tokenId).equal(1);
+			expect(item.nft).equal(nft.address);
+			expect(item.itemId).equal(1);
+			expect(item.price).equal(toWei(price));
+			expect(item.isSold).equal(false);
 		});
 	});
 });
