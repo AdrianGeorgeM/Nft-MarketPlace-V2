@@ -94,4 +94,16 @@ describe('NFTMarketplace', async function () {
 			).revertedWith("reverted with reason string 'Price must be greater than 0'");
 		});
 	});
+
+	// eslint-disable-next-line jest/valid-describe-callback
+	describe('Buying marketplace items', async function () {
+		beforeEach(async function () {
+			// addr1 mints an NFT
+			await nft.connect(addr1).mint(URI);
+			// addr1 approves marketplace to spend NFT
+			await nft.connect(addr1).setApprovalForAll(marketplace.address, true);
+			// addr1 creates a marketplace item
+			await marketplace.connect(addr1).createMarketItem(nft.address, 1, toWei(2));
+		});
+	});
 });
