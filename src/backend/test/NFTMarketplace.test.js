@@ -8,7 +8,7 @@ const fromWei = (num) => ethers.utils.formatEther(num);
 // eslint-disable-next-line jest/valid-describe-callback
 describe('NFTMarketplace', async function () {
 	let deployer, addr1, addr2, nft, marketplace;
-	const feePercent = 10;
+	const feePercent = 1;
 	const URI = 'Sample URI';
 
 	beforeEach(async function () {
@@ -86,6 +86,12 @@ describe('NFTMarketplace', async function () {
 			expect(item.itemId).equal(1);
 			expect(item.price).equal(toWei(price));
 			expect(item.isSold).equal(false);
+		});
+
+		it('Should fail if price is set to zero', async function () {
+			await expect(
+				marketplace.connect(addr1).createMarketItem(nft.address, 1, 0)
+			).revertedWith("reverted with reason string 'Price must be greater than 0'");
 		});
 	});
 });
