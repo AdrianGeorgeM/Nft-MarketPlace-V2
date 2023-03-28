@@ -105,5 +105,35 @@ describe('NFTMarketplace', async function () {
 			// addr1 creates a marketplace item
 			await marketplace.connect(addr1).createMarketItem(nft.address, 1, toWei(2));
 		});
+
+		it('Should update item as sold,pay seller, transfer NFT to buyer,charge fees and emit a Bought event', async function () {
+			const sellerInitialEthBalance = await ethers.provider.getBalance();
+			const feeAccountInitialEthBalance = await deployer.getBalance();
+			//fetch items total price(market price + item fee)
+			let totalPriceInWei = await marketplace.getTotalPrice(1);
+			//addr 2 purchases the item
+			await marketplace
+				.connect(addr2)
+				.purchaseItem(1, { value: totalPriceInWei })
+				.emit(marketplace, 'Bought')
+				.withArgs(1, nft.address, 1, toWei(2), addr1.address, addr2.address);
+
+			const sellerFinalEthBalance = await addr1.getBalance();
+			const feeAccountFinalEthBalance = await deployer.getBalance();
+			//Seller should receive payment for the price of the NFT sold,]
+			expect(+fromWei(sellerFinalEthBalance)).equal(
+				+price + +fromWei(sellerInitialEthBalance)
+			);
+			//calculate the fee amount
+			const feeAmount = (feePercent / 100) * price;
+			//fee account should receive the fee amount
+			expect(+fromWei(feeAccountFinalEthBalance)).equal(
+				+feeAmount + +fromWei(feeAccountInitialEthBalance)
+			);
+			// NFT should be transferred to the buyer
+			expect(await nft.ownerOf(1)).equal(addr2.address);
+			// Marketplace item should be marked as sold
+			expect(await marketplace.marketItems(1).isSold).equal(true);
+		});
 	});
 });
