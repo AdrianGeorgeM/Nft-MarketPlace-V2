@@ -8,7 +8,7 @@ const fromWei = (num) => ethers.utils.formatEther(num);
 // eslint-disable-next-line jest/valid-describe-callback
 describe('NFTMarketplace', async function () {
 	let deployer, addr1, addr2, nft, marketplace;
-	const feePercent = 10;
+	const feePercent = 1;
 	const URI = 'Sample URI';
 
 	beforeEach(async function () {
@@ -86,6 +86,54 @@ describe('NFTMarketplace', async function () {
 			expect(item.itemId).equal(1);
 			expect(item.price).equal(toWei(price));
 			expect(item.isSold).equal(false);
+		});
+
+		it('Should fail if price is set to zero', async function () {
+			await expect(
+				marketplace.connect(addr1).createMarketItem(nft.address, 1, 0)
+			).revertedWith("reverted with reason string 'Price must be greater than 0'");
+		});
+	});
+
+	// eslint-disable-next-line jest/valid-describe-callback
+	describe('Buying marketplace items', async function () {
+		beforeEach(async function () {
+			// addr1 mints an NFT
+			await nft.connect(addr1).mint(URI);
+			// addr1 approves marketplace to spend NFT
+			await nft.connect(addr1).setApprovalForAll(marketplace.address, true);
+			// addr1 creates a marketplace item
+			await marketplace.connect(addr1).createMarketItem(nft.address, 1, toWei(2));
+		});
+
+		it('Should update item as sold,pay seller, transfer NFT to buyer,charge fees and emit a Bought event', async function () {
+			const sellerInitialEthBalance = await ethers.provider.getBalance();
+			const feeAccountInitialEthBalance = await deployer.getBalance();
+			//fetch items total price(market price + item fee)
+			let totalPriceInWei = await marketplace.getTotalPrice(1);
+			//addr 2 purchases the item
+			await marketplace
+				.connect(addr2)
+				.purchaseItem(1, { value: totalPriceInWei })
+				.emit(marketplace, 'Bought')
+				.withArgs(1, nft.address, 1, toWei(2), addr1.address, addr2.address);
+
+			const sellerFinalEthBalance = await addr1.getBalance();
+			const feeAccountFinalEthBalance = await deployer.getBalance();
+			//Seller should receive payment for the price of the NFT sold,]
+			expect(+fromWei(sellerFinalEthBalance)).equal(
+				+price + +fromWei(sellerInitialEthBalance)
+			);
+			//calculate the fee amount
+			const feeAmount = (feePercent / 100) * price;
+			//fee account should receive the fee amount
+			expect(+fromWei(feeAccountFinalEthBalance)).equal(
+				+feeAmount + +fromWei(feeAccountInitialEthBalance)
+			);
+			// NFT should be transferred to the buyer
+			expect(await nft.ownerOf(1)).equal(addr2.address);
+			// Marketplace item should be marked as sold
+			expect(await marketplace.marketItems(1).isSold).equal(true);
 		});
 	});
 });
