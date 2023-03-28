@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -56,5 +57,21 @@ contract Marketplace is ReentrancyGuard {
 
         //emit Offered event
         emit Offered(itemCounter, address(_nft), _tokenId, msg.sender, _price);
+    }
+
+    function purchaseItem(uint _itemId) external payable nonReentrant {
+        // get the item from the mapping
+        MarketItem storage item = marketItems[_itemId];
+        require(item.isSold == false, "Item is already sold");
+        require(item.price == msg.value, "Price is not correct");
+
+        // transfer the NFT to the buyer
+        item.nft.transferFrom(address(this), msg.sender, item.tokenId);
+
+        // pay the seller
+        item.seller.transfer(msg.value);
+
+        // mark the item as sold
+        item.isSold = true;
     }
 }
