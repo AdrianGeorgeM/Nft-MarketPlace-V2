@@ -115,7 +115,7 @@ describe('NFTMarketplace', async function () {
 			await marketplace
 				.connect(addr2)
 				.purchaseItem(1, { value: totalPriceInWei })
-				.emit(marketplace, 'Bought')
+				.emit('Bought', 1, nft.address, 1, toWei(2), addr1.address, addr2.address)
 				.withArgs(1, nft.address, 1, toWei(2), addr1.address, addr2.address);
 
 			const sellerFinalEthBalance = await addr1.getBalance();
