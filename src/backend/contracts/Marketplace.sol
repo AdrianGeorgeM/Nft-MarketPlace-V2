@@ -3,6 +3,7 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract Marketplace is ReentrancyGuard {
     //State Variables
@@ -15,8 +16,8 @@ contract Marketplace is ReentrancyGuard {
         uint itemId;
         IERC721 nft;
         uint tokenId;
-        address payable seller;
         uint price;
+        address payable seller;
         bool isSold;
     }
 
@@ -24,8 +25,8 @@ contract Marketplace is ReentrancyGuard {
         uint itemId,
         address indexed nft,
         uint indexed tokenId,
-        address indexed seller,
-        uint price
+        uint price,
+        address indexed seller
     );
     event Bought(
         uint itemId,
@@ -50,36 +51,37 @@ contract Marketplace is ReentrancyGuard {
         uint _price
     ) external nonReentrant {
         require(_price > 0, "Price must be greater than 0");
-        _nft.transferFrom(msg.sender, address(this), _tokenId);
         itemCounter++;
+        _nft.transferFrom(msg.sender, address(this), _tokenId);
 
         marketItems[itemCounter] = MarketItem(
             itemCounter,
             _nft,
             _tokenId,
-            payable(msg.sender),
             _price,
+            payable(msg.sender),
             false
         );
 
         //emit Offered event
-        emit Offered(itemCounter, address(_nft), _tokenId, msg.sender, _price);
+        emit Offered(itemCounter, address(_nft), _tokenId, _price, msg.sender);
     }
 
     function purchaseItem(uint _itemId) external payable nonReentrant {
         uint _totalPrice = getTotalPrice(_itemId);
         MarketItem storage item = marketItems[_itemId];
+
         require(_itemId > 0 && _itemId <= itemCounter, "Item does not exist");
         require(
-            msg.value == _totalPrice,
+            msg.value >= _totalPrice,
             "not enough ether to cover item price and marketplace fee"
         );
         require(!item.isSold, "Item is already sold");
-        // pay seller and fee account
+        //     // pay seller and fee account
         item.seller.transfer(item.price);
         feeAccount.transfer(_totalPrice - item.price);
         //update item to sold
-        item.isSold = true;
+        item.isSold = false;
         //transfer NFT to buyer
         item.nft.transferFrom(address(this), msg.sender, item.tokenId);
         //emit Bought event
