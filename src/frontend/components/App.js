@@ -1,10 +1,15 @@
 import './App.css';
 import { useState } from 'react';
 import { ethers } from 'ethers';
+import MarketplaceAbi from '../contractsData/Marketplace.json';
+import MarketplaceAddress from '../contractsData/Marketplace-address.json';
+import NFTAbi from '../contractsData/NFT.json';
+import NFTAddress from '../contractsData/NFT-address.json';
 
 function App() {
 	const [loading, setLoading] = useState(true);
 	const [account, setAccount] = useState(null);
+	const [nft, setNFT] = useState({});
 	const [marketplace, setMarketplace] = useState({});
 	//Metamask code Login/COnnect
 	const web3Handler = async () => {
@@ -25,7 +30,7 @@ function App() {
 			);
 			setMarketplace(marketplace);
 			const nft = new ethers.Contract(NFTAddress.address, NFTAddress.abi, signer);
-			setNft(nft);
+			setNFT(nft);
 			setLoading(false);
 		};
 	};
