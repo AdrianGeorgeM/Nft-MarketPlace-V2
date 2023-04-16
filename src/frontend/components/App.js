@@ -1,6 +1,7 @@
 import './App.css';
 import { useState } from 'react';
 import { ethers } from 'ethers';
+import Navigation from './Navbar';
 import MarketplaceAbi from '../contractsData/Marketplace.json';
 import MarketplaceAddress from '../contractsData/Marketplace-address.json';
 import NFTAbi from '../contractsData/NFT.json';
@@ -37,7 +38,7 @@ function App() {
 
 	return (
 		<div>
-			<h1>React App</h1>
+			<Navigation web3Handler={web3Handler} account={account} />
 		</div>
 	);
 }
