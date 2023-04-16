@@ -2,6 +2,8 @@ import './App.css';
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import Navigation from './Navbar';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './Home';
 import MarketplaceAbi from '../contractsData/Marketplace.json';
 import MarketplaceAddress from '../contractsData/Marketplace-address.json';
 import NFTAbi from '../contractsData/NFT.json';
@@ -20,8 +22,6 @@ function App() {
 		const provider = new ethers.providers.Web3Provider(window.ethereum);
 		const signer = provider.getSigner(); //signer is the account that is connected to the network
 
-		loadContracts(signer);
-
 		const loadContracts = async (signer) => {
 			//Get deployed copies of the contracts
 			const marketplace = new ethers.Contract(
@@ -29,6 +29,7 @@ function App() {
 				MarketplaceAddress.abi,
 				signer
 			);
+			loadContracts(signer);
 			setMarketplace(marketplace);
 			const nft = new ethers.Contract(NFTAddress.address, NFTAddress.abi, signer);
 			setNFT(nft);
@@ -37,8 +38,12 @@ function App() {
 	};
 
 	return (
-		<div>
+		<div className='App'>
 			<Navigation web3Handler={web3Handler} account={account} />
+
+			<Routes>
+				<Route path='/' element={<Home marketplace={marketplace} nft={nft} />} />
+			</Routes>
 		</div>
 	);
 }
