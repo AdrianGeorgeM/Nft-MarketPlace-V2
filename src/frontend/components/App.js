@@ -2,6 +2,9 @@ import './App.css';
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import Navigation from './Navbar';
+import Create from './Create.js';
+import MyListedItems from './MyListedItems';
+import MyPurchases from './MyPurchases';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import MarketplaceAbi from '../contractsData/Marketplace.json';
@@ -43,6 +46,17 @@ function App() {
 
 			<Routes>
 				<Route path='/' element={<Home marketplace={marketplace} nft={nft} />} />
+				<Route path='/create' element={<Create marketplace={marketplace} nft={nft} />} />
+				<Route
+					path='/my-listed-items'
+					element={
+						<MyListedItems marketplace={marketplace} nft={nft} account={account} />
+					}
+				/>
+				<Route
+					path='/my-purchasses'
+					element={<MyPurchases marketplace={marketplace} nft={nft} account={account} />}
+				/>
 			</Routes>
 		</div>
 	);
